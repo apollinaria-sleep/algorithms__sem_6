@@ -1,5 +1,5 @@
-#ifndef UNTITLED5_RATIONAL_H
-#define UNTITLED5_RATIONAL_H
+#ifndef RATIONAL_TESTS_RATIONAL_H
+#define RATIONAL_TESTS_RATIONAL_H
 
 #include <iostream>
 #include <exception>
@@ -11,41 +11,44 @@ class NullDenominator : public std::exception {
 public:
     explicit NullDenominator(std::string_view error) : m_error{error} {}
     const char* what() const noexcept override {
-        return m_error.c_str();;
+            return m_error.c_str();;
     }
 private:
     std::string m_error;
 };
 
+
 class Rational {
 public:
     Rational() = default;
-    Rational(const Rational& other) = default;
-    Rational(Rational&& other) = default;
-    Rational(const int num, const int den = 1) : numerator(num), denominator(den) {
-        if (!den) throw NullDenominator("Знаменатель не может быть нулем\n");
-        normalize();
-    }
-
+    Rational(const Rational&) = default;
+    Rational(Rational&&) = default;
+    Rational(const int num, const int denum);
+    Rational& operator=(const Rational&) = default;
+    Rational& operator=(Rational&&) noexcept = default;
     ~Rational() = default;
 
-    int RationalNum() const;
-    int RationalDen() const;
+    int num() const;
+    int denum() const;
 
     Rational operator-() const;
 
-    Rational& operator+=(const Rational& right);
-    Rational& operator-=(const Rational& right);
-    Rational& operator*=(const Rational& right);
-    Rational& operator/=(const Rational& right);
+    Rational& operator+=(const Rational& rhs);
+    Rational& operator-=(const Rational& rhs);
+    Rational& operator*=(const Rational& rhs);
+    Rational& operator/=(const Rational& rhs);
 
-    bool operator==(const Rational& right) const;
-    bool operator<(const Rational& right) const;
-
-    Rational& operator=(const Rational& right) = default;
+    bool operator==(const Rational& rhs) const;
+    bool operator!=(const Rational& rhs) const;
+    bool operator<(const Rational& rhs) const;
+    bool operator<=(const Rational& rhs) const;
+    bool operator>(const Rational& rhs) const;
+    bool operator>=(const Rational& rhs) const;
 
     explicit operator double() const;
 
+    std::istream& read_from(std::istream& istrm);
+    std::ostream& write_to(std::ostream& ostrm) const;
 private:
     int Gcd(int a, int b) const;
     void normalize();
@@ -55,18 +58,12 @@ private:
     int denominator = 1;
 };
 
+std::istream& operator>>(std::istream& istrm, Rational& r);
+std::ostream& operator<<(std::ostream& ostrm, const Rational& r);
+
 Rational operator+(const Rational& left, const Rational& right);
 Rational operator-(const Rational& left, const Rational& right);
 Rational operator*(const Rational& left, const Rational& right);
 Rational operator/(const Rational& left, const Rational& right);
 
-bool operator!=(const Rational& left, const Rational& right);
-bool operator>(const Rational& left, const Rational& right);
-bool operator<=(const Rational& left, const Rational& right);
-bool operator>=(const Rational& left, const Rational& right);
-
-std::ostream& operator<<(std::ostream& ostr, const Rational& r);
-std::istream& operator>>(std::istream& istr, Rational& r);
-
-
-#endif //UNTITLED5_RATIONAL_H
+#endif
