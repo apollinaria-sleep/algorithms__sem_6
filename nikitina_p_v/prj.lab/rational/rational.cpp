@@ -2,11 +2,16 @@
 #include <iostream>
 
 
-int Rational::RationalNum() const {
+Rational::Rational(const int num, const int denum = 1) : numerator(num), denominator(denum) {
+    if (!denum) throw NullDenominator("Знаменатель не может быть нулем\n");
+    normalize();
+}
+
+int Rational::num() const {
     return numerator;
 }
 
-int Rational::RationalDen() const {
+int Rational::denum() const {
     return denominator;
 }
 
@@ -14,41 +19,74 @@ Rational Rational::operator-() const {
     return Rational(-numerator, denominator);
 }
 
-Rational& Rational::operator+=(const Rational& right) {
-    numerator = numerator * right.denominator + right.numerator * denominator;
-    denominator *= right.denominator;
+Rational& Rational::operator+=(const Rational& rhs) {
+    numerator = numerator * rhs.denominator + rhs.numerator * denominator;
+    denominator *= rhs.denominator;
     normalize();
     return *this;
 };
 
-Rational& Rational::operator-=(const Rational& right) {
-    *this += (- right);
+Rational& Rational::operator-=(const Rational& rhs) {
+    *this += (-rhs);
     return *this;
 }
 
-Rational& Rational::operator*=(const Rational& right) {
-    numerator *= right.numerator;
-    denominator *= right.denominator;
+Rational& Rational::operator*=(const Rational& rhs) {
+    numerator *= rhs.numerator;
+    denominator *= rhs.denominator;
     normalize();
     return *this;
 }
 
-Rational& Rational::operator/=(const Rational& right) {
-    if (!right.numerator) throw NullDenominator("Деление на нуль");
-    *this *= Rational(right.denominator, right.numerator);
+Rational& Rational::operator/=(const Rational& rhs) {
+    if (!rhs.numerator) throw NullDenominator("Деление на нуль");
+    *this *= Rational(rhs.denominator, rhs.numerator);
     return *this;
 }
 
-bool Rational::operator==(const Rational& right) const {
-    return (numerator == right.numerator && denominator == right.denominator);
+bool Rational::operator==(const Rational& rhs) const {
+    return (numerator == rhs.numerator && denominator == rhs.denominator);
 }
 
-bool Rational::operator<(const Rational& right) const {
-    return numerator * right.denominator < denominator * right.numerator;
+bool Rational::operator!=(const Rational& rhs) const {
+    return !(*this == rhs);
+}
+
+bool Rational::operator<(const Rational& rhs) const {
+    return numerator * rhs.denominator < denominator * rhs.numerator;
+}
+
+bool Rational::operator<=(const Rational& rhs) const {
+    return (*this == rhs) || (*this < rhs);
+}
+
+bool Rational::operator>(const Rational& rhs) const {
+    return rhs < *this;
+}
+
+bool Rational::operator>=(const Rational& rhs) const{
+    return (*this == rhs) || (*this > rhs);
 }
 
 Rational::operator double() const {
     return 1.0 * this->numerator / this->denominator;
+}
+
+std::istream& Rational::read_from(std::istream& istrm) {
+    int num, denum;
+    char c;
+    istrm >> std::noskipws;
+    istrm >> num >> c >> denum;
+    istrm >> std::skipws;
+    if (c != '/') throw;
+    if (denum <= 0) throw NullDenominator("Некорректный знаменатель");
+    *this = Rational(num, denum);
+    return istrm;
+}
+
+std::ostream& Rational::write_to(std::ostream& ostrm) const {
+    ostrm << numerator << '/' << denominator;
+    return ostrm;
 }
 
 int Rational::Gcd(int a, int b) const {
@@ -73,46 +111,26 @@ void Rational::normalize() {
     }
 }
 
-Rational operator+(const Rational& left, const Rational& right) {
-    return Rational(left) += right;
+Rational operator+(const Rational& lhs, const Rational& rhs) {
+    return Rational(lhs) += rhs;
 }
 
-Rational operator-(const Rational& left, const Rational& right) {
-    return Rational(left) -= right;
+Rational operator-(const Rational& lhs, const Rational& rhs) {
+    return Rational(lhs) -= rhs;
 }
 
-Rational operator*(const Rational& left, const Rational& right) {
-    return Rational(left) *= right;
+Rational operator*(const Rational& lhs, const Rational& rhs) {
+    return Rational(lhs) *= rhs;
 }
 
-Rational operator/(const Rational& left, const Rational& right) {
-    return Rational(left) /= right;
+Rational operator/(const Rational& lhs, const Rational& rhs) {
+    return Rational(lhs) /= rhs;
 }
 
-bool operator!=(const Rational& left, const Rational& right) {
-    return !(left == right);
+std::istream& operator>>(std::istream& istrm, Rational& r) {
+    return r.read_from(istrm);
 }
 
-bool operator>(const Rational& left, const Rational& right) {
-    return right < left;
-}
-
-bool operator<=(const Rational& left, const Rational& right) {
-    return (left == right) || (left < right);
-}
-
-bool operator>=(const Rational& left, const Rational& right) {
-    return (left == right) || (left > right);
-}
-
-std::ostream& operator<<(std::ostream& ostr, const Rational& r) {
-    ostr << r.RationalNum() << '/' << r.RationalDen();
-    return ostr;
-}
-
-std::istream& operator>>(std::istream& istr, Rational& r) {
-    int num, den;
-    istr >> num >> den;
-    r = Rational(num, den);
-    return istr;
+std::ostream& operator<<(std::ostream& ostrm, const Rational& r) {
+    return r.write_to(ostrm);
 }
