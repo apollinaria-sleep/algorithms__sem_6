@@ -1,6 +1,7 @@
-#include "rational.h"
+#include <rational/rational.h>
 #include <iostream>
 
+Rational::Rational(const int num) : numerator(num), denominator(1) {}
 
 Rational::Rational(const int num, const int denum = 1) : numerator(num), denominator(denum) {
     if (!denum) throw NullDenominator("Знаменатель не может быть нулем\n");
@@ -78,7 +79,7 @@ std::istream& Rational::read_from(std::istream& istrm) {
     istrm >> std::noskipws;
     istrm >> num >> c >> denum;
     istrm >> std::skipws;
-    if (c != '/') throw;
+    if (c != '/') throw "Неверный формат ввода";
     if (denum <= 0) throw NullDenominator("Некорректный знаменатель");
     *this = Rational(num, denum);
     return istrm;
