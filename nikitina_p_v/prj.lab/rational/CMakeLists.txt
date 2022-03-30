@@ -1,9 +1,8 @@
 cmake_minimum_required(VERSION 3.21)
-
-set(CMAKE_C_COMPILER /usr/bin/gcc)
-set(CMAKE_CXX_COMPILER /usr/bin/g++)
-project(untitled5)
+project(rational_test)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(untitled5 rational.h rational.cpp tests.cpp doctest.h)
+add_library(rational rational.h rational.cpp)
+add_executable(rational_test test.cpp)
+target_link_libraries(rational_test rational)
