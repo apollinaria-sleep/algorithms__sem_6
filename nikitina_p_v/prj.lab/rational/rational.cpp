@@ -1,9 +1,9 @@
 #include <rational/rational.h>
 #include <iostream>
 
-Rational::Rational(const int num) : numerator(num), denominator(1) {}
+Rational::Rational(int num) : numerator(num), denominator(1) {}
 
-Rational::Rational(const int num, const int denum = 1) : numerator(num), denominator(denum) {
+Rational::Rational(int num, int denum = 1) : numerator(num), denominator(denum) {
     if (!denum) throw NullDenominator("Знаменатель не может быть нулем\n");
     normalize();
 }
@@ -66,7 +66,7 @@ bool Rational::operator>(const Rational& rhs) const {
 }
 
 bool Rational::operator>=(const Rational& rhs) const{
-    return (*this == rhs) || (*this > rhs);
+    return rhs <= *this;
 }
 
 Rational::operator double() const {
@@ -79,8 +79,10 @@ std::istream& Rational::read_from(std::istream& istrm) {
     istrm >> std::noskipws;
     istrm >> num >> c >> denum;
     istrm >> std::skipws;
-    if (c != '/') throw "Неверный формат ввода";
-    if (denum <= 0) throw NullDenominator("Некорректный знаменатель");
+    if (istrm.rdstate() == std::ios_base::failbit || denum <= 0 || c != '/') {
+        istrm.setstate(std::ios_base::failbit);
+        return istrm;
+    }
     *this = Rational(num, denum);
     return istrm;
 }
@@ -91,6 +93,7 @@ std::ostream& Rational::write_to(std::ostream& ostrm) const {
 }
 
 int Rational::Gcd(int a, int b) const {
+    a = (a > 0 ? a : (-a));
     while (a && b) {
         if (a > b) {
             a %= b;
@@ -102,14 +105,14 @@ int Rational::Gcd(int a, int b) const {
 }
 
 void Rational::normalize() {
-    int gcd = Gcd(numerator, denominator);
-    numerator /= gcd;
-    denominator /= gcd;
-
     if (denominator < 0) {
         numerator *= -1;
         denominator *= -1;
     }
+
+    int gcd = Gcd(numerator, denominator);
+    numerator /= gcd;
+    denominator /= gcd;
 }
 
 Rational operator+(const Rational& lhs, const Rational& rhs) {
