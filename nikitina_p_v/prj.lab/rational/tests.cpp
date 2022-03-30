@@ -1,32 +1,40 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
-#include "doctest.h"
-#include "rational.cpp"
+#include <doctest/doctest.h>
+#include <rational/rational.h>
 
 
 TEST_CASE("init") {
+    Rational default_num;
+    CHECK(default_num.num() == 0);
+    CHECK(default_num.denum() == 1);
+
+    Rational null_num(0, 2);
+    CHECK(null_num.num() == 0);
+    CHECK(null_num.denum() == 1);
+
     int num = rand() % 1000;
     int den = 1 + rand() % 1000;
     Rational number(num, den);
-    CHECK(number.RationalNum() == num);
-    CHECK(number.RationalDen() == den);
+    CHECK(number.num() == num);
+    CHECK(number.denum() == den);
 
     Rational same = number;
-    CHECK(number.RationalNum() == num);
-    CHECK(number.RationalDen() == den);
+    CHECK(same.num() == num);
+    CHECK(same.denum() == den);
 
-    int normalize = 1 + rand() % 1000;
+    int normalize = 2 + rand() % 1000;
     Rational number_(num * normalize, den * normalize);
-    CHECK(number.RationalNum() == number_.RationalNum());
-    CHECK(number.RationalDen() == number_.RationalDen());
+    CHECK(number.num() == number_.num());
+    CHECK(number.denum() == number_.denum());
 
     Rational negative(num, (den > 0 ? (-den) : den));
-    CHECK(negative.RationalDen() > 0);
+    CHECK(negative.denum() > 0);
 
-    bool error = true;
+    bool error = false;
     try {
         Rational null_den(num, 0);
-    } catch (NullDenominator& e) {
-        error = false;
+    } catch (Rational::NullDenominator& e) {
+        error = true;
     }
     CHECK(error);
 }
@@ -60,11 +68,11 @@ TEST_CASE("arithmetic operations") {
     CHECK(left - right == Rational(a * d - b * c, b * d));
     CHECK(left / right == Rational(a * d, b * c));
 
-    bool error = true;
+    bool error = false;
     try {
         left /= Rational(0, b);
-    } catch (NullDenominator& e) {
-        error = false;
+    } catch (Rational::NullDenominator& e) {
+        error = true;
     }
     CHECK(error);
 }
