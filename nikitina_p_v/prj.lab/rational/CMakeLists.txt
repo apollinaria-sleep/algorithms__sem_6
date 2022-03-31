@@ -3,5 +3,5 @@ cmake_minimum_required(VERSION 3.21)
 set(CMAKE_CXX_STANDARD 17)
 
 add_library(rational rational.h rational.cpp)
-add_executable(rational_test test.cpp)
+add_executable(rational_test tests.cpp)
 target_link_libraries(rational_test rational)
